@@ -12,10 +12,11 @@ public class Test {
 
     public static void main(String[] args) {
         SimpleDataCSV csv = new SimpleDataCSV("resources\\50.jtl");
-        new SynthesisReport(csv).filterByTime(700, 1500);
-        csv.writeToXls("test2.xls");
-        System.out.println(csv.avgResponseTime("D2REST-Delete"));
-        Map<String, Double> allAvgResponseTime = csv.getAllAvgResponseTime();
+        SynthesisReport report = new SynthesisReport(csv);
+        report.filterByTime(700,1500);
+//        csv.writeToXls("test2.xls");
+        System.out.println(report.avgResponseTime("D2REST-Delete"));
+        Map<String, Double> allAvgResponseTime = report.getAllAvgResponseTime();
         allAvgResponseTime.forEach((k,v)->{
             System.out.println(k +"\t\t\t" +v);
         });

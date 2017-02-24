@@ -121,45 +121,6 @@ public class BasicCSV {
         }
     }
 
-
-    /**
-     * make sure that vals are nubmers
-     *
-     * @param records
-     * @param header
-     * @return
-     */
-    public double avg(List<CSVRecord> records, String header) {
-        double[] data = new double[records.size()];
-        for (int i = 0; i < records.size(); ++i) {
-            data[i] = Double.parseDouble(records.get(i).get(header));
-        }
-        Mean mean = new Mean();
-        return mean.evaluate(data, 0, data.length);
-    }
-
-    public double avg(List<CSVRecord> records, SimpleDataHeader header) {
-        return avg(records, header.getKey());
-    }
-
-    public double avg(SimpleDataHeader header) {
-        return avg(records, header.getKey());
-    }
-
-    public int count(List<CSVRecord> records, String header, String val) {
-        int ret = 0;
-        for (CSVRecord record : records) {
-            if (record.get(header).equals(val)) {
-                ret++;
-            }
-        }
-        return ret;
-    }
-
-    public int count(String header, String val) {
-        return count(records, header, val);
-    }
-
     public void setRecords(List<CSVRecord> records) {
         this.records = records;
     }
