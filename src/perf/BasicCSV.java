@@ -43,21 +43,49 @@ public class BasicCSV {
         this.fileName = dataFileName;
     }
 
-    public void writeToXls(String xlsFileName, String sheetName){
+    public void filterByTime(long startSecond, long endSecond) {
+        long startTimeStamp = Long.parseLong(records.get(0).get(JMeterCSVHeader.TIMESTAMP.getKey()));
+        long startOffset = startTimeStamp + startSecond * 1000;
+        long endOffset = startTimeStamp + endSecond * 1000;
+        int l = 0, r = records.size();
+        int start, end;
+        while (r > l+1) {
+            int mid = l + (r - l) / 2;
+            long curTimeStamp = Long.parseLong(records.get(mid).get(JMeterCSVHeader.TIMESTAMP.getKey()));
+            if (curTimeStamp < startOffset){
+                l = mid;
+            }else{
+                r = mid;
+            }
+        }
+        start = r;
+        l = 0;
+        r = records.size();
+        while (r > l+1) {
+            int mid = l + (r - l) / 2;
+            long curTimeStamp = Long.parseLong(records.get(mid).get(JMeterCSVHeader.TIMESTAMP.getKey()));
+            if (curTimeStamp < endOffset){
+                l = mid;
+            }else{
+                r = mid;
+            }
+        }
+        end = l;
+        records = records.subList(start,end);
+    }
+
+    public void writeToXls(String xlsFileName, String sheetName) {
         rawData2Xls(fileName, xlsFileName, sheetName);
     }
 
-    public void writeToXls(String xlsFileName){
+    public void writeToXls(String xlsFileName) {
         rawData2Xls(fileName, xlsFileName, "sheet1");
     }
 
-    private static void rawData2Xls(String rawDataFileName, String xlsFileName, String sheetName) {
+    private void rawData2Xls(String rawDataFileName, String xlsFileName, String sheetName) {
         Assert.assertNotNull(rawDataFileName);
         Assert.assertNotNull(xlsFileName);
         try {
-            CSVParser parser = CSVParser.parse(new File(rawDataFileName), Charset.defaultCharset(), CSVFormat.DEFAULT.withHeader());
-            List<CSVRecord> records = parser.getRecords();
-
             parser.getHeaderMap().entrySet().forEach(stringIntegerEntry -> System.out.println(stringIntegerEntry.getKey()));
             HSSFWorkbook workbook = new HSSFWorkbook();
             HSSFSheet sheet1 = workbook.createSheet(sheetName);
@@ -91,25 +119,25 @@ public class BasicCSV {
         }
     }
 
-    public List<String> getHeaders(){
+    public List<String> getHeaders() {
         return new ArrayList<>(parser.getHeaderMap().keySet());
     }
 
-    public List<CSVRecord> getRecordsByHeader(String header, String value){
+    public List<CSVRecord> getRecordsByHeader(String header, String value) {
         List<CSVRecord> ret = new ArrayList<>();
         records.forEach(record -> {
-            if(record.get(header).equals(value)){
+            if (record.get(header).equals(value)) {
                 ret.add(record);
             }
         });
         return ret;
     }
 
-    public List<CSVRecord> getRecordsByHeader(JMeterCSVHeader header, String value){
+    public List<CSVRecord> getRecordsByHeader(JMeterCSVHeader header, String value) {
         return getRecordsByHeader(header.getKey(), value);
     }
 
-    public void close(){
+    public void close() {
         try {
             parser.close();
         } catch (IOException e) {
@@ -117,34 +145,36 @@ public class BasicCSV {
         }
     }
 
-    public double avg(List<CSVRecord> records, String header){
+    public double avg(List<CSVRecord> records, String header) {
         double[] data = new double[records.size()];
-        for(int i = 0 ; i < records.size(); ++i){
+        for (int i = 0; i < records.size(); ++i) {
             data[i] = Double.parseDouble(records.get(i).get(header));
         }
         Mean mean = new Mean();
-        return mean.evaluate(data,0,data.length);
+        return mean.evaluate(data, 0, data.length);
     }
 
     public double avg(List<CSVRecord> records, JMeterCSVHeader header) {
         return avg(records, header.getKey());
     }
+
     public double avg(JMeterCSVHeader header) {
         return avg(records, header.getKey());
     }
 
-    public int count(List<CSVRecord> records, String header, String val){
+    public int count(List<CSVRecord> records, String header, String val) {
         int ret = 0;
-        for(CSVRecord record : records){
-            if(record.get(header).equals(val)){
+        for (CSVRecord record : records) {
+            if (record.get(header).equals(val)) {
                 ret++;
             }
         }
         return ret;
     }
 
-    public int count(String header, String val){
+    public int count(String header, String val) {
         return count(records, header, val);
     }
+
 
 }
