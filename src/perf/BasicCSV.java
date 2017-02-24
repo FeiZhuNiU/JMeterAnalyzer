@@ -145,6 +145,12 @@ public class BasicCSV {
         }
     }
 
+    /**
+     * make sure that the vals are nubmers
+     * @param records
+     * @param header
+     * @return
+     */
     public double avg(List<CSVRecord> records, String header) {
         double[] data = new double[records.size()];
         for (int i = 0; i < records.size(); ++i) {
@@ -175,6 +181,4 @@ public class BasicCSV {
     public int count(String header, String val) {
         return count(records, header, val);
     }
-
-
 }
