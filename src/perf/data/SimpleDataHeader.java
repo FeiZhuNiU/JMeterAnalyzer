@@ -1,9 +1,9 @@
-package perf;
+package perf.data;
 
 /**
  * Created by Eric Yu on 2017/2/24.
  */
-public enum JMeterCSVHeader {
+public enum SimpleDataHeader {
 
     TIMESTAMP("timeStamp"),
     ELAPSED("elapsed"),
@@ -24,7 +24,7 @@ public enum JMeterCSVHeader {
 
     private String key;
 
-    JMeterCSVHeader(String key) {
+    SimpleDataHeader(String key) {
         this.key = key;
     }
 

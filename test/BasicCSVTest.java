@@ -1,4 +1,4 @@
-import perf.BasicCSV;
+import perf.data.BasicCSV;
 
 import static org.junit.jupiter.api.Assertions.*;
 

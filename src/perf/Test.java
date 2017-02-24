@@ -1,5 +1,8 @@
 package perf;
 
+import perf.analyze.SynthesisReport;
+import perf.data.SimpleDataCSV;
+
 import java.util.Map;
 
 /**
@@ -9,7 +12,7 @@ public class Test {
 
     public static void main(String[] args) {
         SimpleDataCSV csv = new SimpleDataCSV("resources\\50.jtl");
-        csv.filterByTime(700, 1500);
+        new SynthesisReport(csv).filterByTime(700, 1500);
         csv.writeToXls("test2.xls");
         System.out.println(csv.avgResponseTime("D2REST-Delete"));
         Map<String, Double> allAvgResponseTime = csv.getAllAvgResponseTime();
@@ -19,11 +22,11 @@ public class Test {
 
 //        System.out.println(csv.getHeaders());
 //
-//        csv.getRecordsByHeader(JMeterCSVHeader.LABEL, "D2REST-Delete").forEach(record -> {
+//        csv.getRecordsByHeader(SimpleDataHeader.LABEL, "D2REST-Delete").forEach(record -> {
 //            System.out.println(record.get("timeStamp"));
 //        });
-//        System.out.println(csv.getSuccessRate(JMeterCSVHeader.LABEL, "D2REST-Delete"));
-//        System.out.println(csv.avg(csv.getRecords(), JMeterCSVHeader.ELAPSED.getKey()));
+//        System.out.println(csv.getSuccessRate(SimpleDataHeader.LABEL, "D2REST-Delete"));
+//        System.out.println(csv.avg(csv.getRecords(), SimpleDataHeader.ELAPSED.getKey()));
     }
 
 }

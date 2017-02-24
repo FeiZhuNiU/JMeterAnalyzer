@@ -1,4 +1,4 @@
-package perf;
+package perf.data;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -41,37 +41,6 @@ public class BasicCSV {
             e.printStackTrace();
         }
         this.fileName = dataFileName;
-    }
-
-    public void filterByTime(long startSecond, long endSecond) {
-        long startTimeStamp = Long.parseLong(records.get(0).get(JMeterCSVHeader.TIMESTAMP.getKey()));
-        long startOffset = startTimeStamp + startSecond * 1000;
-        long endOffset = startTimeStamp + endSecond * 1000;
-        int l = 0, r = records.size();
-        int start, end;
-        while (r > l+1) {
-            int mid = l + (r - l) / 2;
-            long curTimeStamp = Long.parseLong(records.get(mid).get(JMeterCSVHeader.TIMESTAMP.getKey()));
-            if (curTimeStamp < startOffset){
-                l = mid;
-            }else{
-                r = mid;
-            }
-        }
-        start = r;
-        l = 0;
-        r = records.size();
-        while (r > l+1) {
-            int mid = l + (r - l) / 2;
-            long curTimeStamp = Long.parseLong(records.get(mid).get(JMeterCSVHeader.TIMESTAMP.getKey()));
-            if (curTimeStamp < endOffset){
-                l = mid;
-            }else{
-                r = mid;
-            }
-        }
-        end = l;
-        records = records.subList(start,end);
     }
 
     public void writeToXls(String xlsFileName, String sheetName) {
@@ -123,6 +92,13 @@ public class BasicCSV {
         return new ArrayList<>(parser.getHeaderMap().keySet());
     }
 
+    /**
+     * return a list of records whose @param header equals @param value
+     *
+     * @param header
+     * @param value
+     * @return
+     */
     public List<CSVRecord> getRecordsByHeader(String header, String value) {
         List<CSVRecord> ret = new ArrayList<>();
         records.forEach(record -> {
@@ -133,7 +109,7 @@ public class BasicCSV {
         return ret;
     }
 
-    public List<CSVRecord> getRecordsByHeader(JMeterCSVHeader header, String value) {
+    public List<CSVRecord> getRecordsByHeader(SimpleDataHeader header, String value) {
         return getRecordsByHeader(header.getKey(), value);
     }
 
@@ -145,8 +121,10 @@ public class BasicCSV {
         }
     }
 
+
     /**
-     * make sure that the vals are nubmers
+     * make sure that vals are nubmers
+     *
      * @param records
      * @param header
      * @return
@@ -160,11 +138,11 @@ public class BasicCSV {
         return mean.evaluate(data, 0, data.length);
     }
 
-    public double avg(List<CSVRecord> records, JMeterCSVHeader header) {
+    public double avg(List<CSVRecord> records, SimpleDataHeader header) {
         return avg(records, header.getKey());
     }
 
-    public double avg(JMeterCSVHeader header) {
+    public double avg(SimpleDataHeader header) {
         return avg(records, header.getKey());
     }
 
@@ -180,5 +158,9 @@ public class BasicCSV {
 
     public int count(String header, String val) {
         return count(records, header, val);
+    }
+
+    public void setRecords(List<CSVRecord> records) {
+        this.records = records;
     }
 }
