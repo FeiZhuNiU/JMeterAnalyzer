@@ -3,7 +3,7 @@ package perf.data;
 /**
  * Created by Eric Yu on 2017/2/24.
  */
-public enum SimpleDataHeader {
+public enum CommonCSVHeader {
 
     TIMESTAMP("timeStamp"),
     ELAPSED("elapsed"),
@@ -24,7 +24,7 @@ public enum SimpleDataHeader {
 
     private String key;
 
-    SimpleDataHeader(String key) {
+    CommonCSVHeader(String key) {
         this.key = key;
     }
 

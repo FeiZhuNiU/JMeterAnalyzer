@@ -1,15 +1,15 @@
-import perf.data.BasicCSV;
+import perf.data.BasicJMeterCSV;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by Eric Yu on 2017/2/24.
  */
-class BasicCSVTest {
-    BasicCSV csv;
+class BasicJMeterCSVTest {
+    BasicJMeterCSV csv;
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
-        csv = new BasicCSV("temp\\50.jtl");
+        csv = new BasicJMeterCSV("temp\\50.jtl");
     }
 
     @org.junit.jupiter.api.AfterEach

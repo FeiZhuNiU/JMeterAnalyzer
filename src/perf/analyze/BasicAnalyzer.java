@@ -2,8 +2,8 @@ package perf.analyze;
 
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
-import perf.data.BasicCSV;
-import perf.data.SimpleDataHeader;
+import perf.data.BasicJMeterCSV;
+import perf.data.CommonCSVHeader;
 
 import java.util.List;
 
@@ -11,10 +11,10 @@ import java.util.List;
  * Created by 麟 on 2017/2/24.
  */
 public class BasicAnalyzer {
-    protected BasicCSV csv;
+    protected BasicJMeterCSV csv;
     protected List<CSVRecord> records;
 
-    public BasicAnalyzer(BasicCSV csv) {
+    public BasicAnalyzer(BasicJMeterCSV csv) {
         this.csv = csv;
         this.records = csv.getRecords();
     }
@@ -34,11 +34,11 @@ public class BasicAnalyzer {
         return mean.evaluate(data, 0, data.length);
     }
 
-    public double avg(List<CSVRecord> records, SimpleDataHeader header) {
+    public double avg(List<CSVRecord> records, CommonCSVHeader header) {
         return avg(records, header.getKey());
     }
 
-    public double avg(SimpleDataHeader header) {
+    public double avg(CommonCSVHeader header) {
         return avg(records, header.getKey());
     }
 
