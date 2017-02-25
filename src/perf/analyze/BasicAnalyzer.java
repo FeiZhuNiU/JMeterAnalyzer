@@ -8,7 +8,8 @@ import perf.data.SimpleDataCSV;
 import java.util.List;
 
 /**
- * Created by 麟 on 2017/2/24.
+ * Created by Eric Yu on 2017/2/25.
+ * yulin.jay@gmail.com
  */
 public abstract class BasicAnalyzer {
 //    protected JMeterCSV csv;
