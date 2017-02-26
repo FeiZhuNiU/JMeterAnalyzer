@@ -1,24 +1,16 @@
-package perf.analyze;
+package perf.analysis;
 
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
-import perf.data.JMeterCSV;
 import perf.data.SimpleDataCSV;
 
 import java.util.List;
 
 /**
- * Created by Eric Yu on 2017/2/25.
+ * Created by Eric Yu on 2017/2/26.
  * yulin.jay@gmail.com
  */
-public abstract class BasicAnalyzer {
-//    protected JMeterCSV csv;
-    protected List<CSVRecord> records;
-
-    public BasicAnalyzer(JMeterCSV csv) {
-//        this.csv = csv;
-        this.records = csv.getRecords();
-    }
+public class CommonAnalysisUtils {
     /**
      * make sure that vals are nubmers
      *
@@ -26,7 +18,7 @@ public abstract class BasicAnalyzer {
      * @param header
      * @return
      */
-    public double avg(List<CSVRecord> records, String header) {
+    public static double avg(List<CSVRecord> records, String header) {
         double[] data = new double[records.size()];
         for (int i = 0; i < records.size(); ++i) {
             data[i] = Double.parseDouble(records.get(i).get(header));
@@ -35,15 +27,11 @@ public abstract class BasicAnalyzer {
         return mean.evaluate(data, 0, data.length);
     }
 
-    public double avg(List<CSVRecord> records, SimpleDataCSV.Header header) {
-        return avg(records, header.getKey());
+    public static double avg(List<CSVRecord> records, SimpleDataCSV.Header header) {
+        return avg(records, header.toString());
     }
 
-    public double avg(SimpleDataCSV.Header header) {
-        return avg(records, header.getKey());
-    }
-
-    public int count(List<CSVRecord> records, String header, String val) {
+    public static int count(List<CSVRecord> records, String header, String val) {
         int ret = 0;
         for (CSVRecord record : records) {
             if (record.get(header).equals(val)) {
@@ -51,9 +39,5 @@ public abstract class BasicAnalyzer {
             }
         }
         return ret;
-    }
-
-    public int count(String header, String val) {
-        return count(records, header, val);
     }
 }

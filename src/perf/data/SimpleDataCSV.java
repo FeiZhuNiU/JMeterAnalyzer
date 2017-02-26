@@ -60,7 +60,12 @@ public class SimpleDataCSV extends JMeterCSV {
             this.key = key;
         }
 
-        public String getKey() {
+//        public String getKey() {
+//            return key;
+//        }
+
+        @Override
+        public String toString() {
             return key;
         }
     }

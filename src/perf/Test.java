@@ -1,6 +1,6 @@
 package perf;
 
-import perf.analyze.SynthesisReport;
+import perf.analysis.SynthesisReport;
 import perf.data.SimpleDataCSV;
 import perf.out.XlsWriter;
 
@@ -15,7 +15,7 @@ public class Test {
         SimpleDataCSV csv = new SimpleDataCSV("resources\\50.jtl");
         SynthesisReport report = new SynthesisReport(csv);
         report.filterByTime(700,1500);
-        XlsWriter.writeXls(csv.getHeaders(),csv.getRecords(),"test3.xls","sheet3");
+        XlsWriter.writeXls(csv.getHeaders(),csv.getRecords(),"test3.xls","sheet4");
 //        csv.writeToXls("test2.xls");
         System.out.println(report.avgResponseTime("D2REST-Delete"));
         Map<String, Double> allAvgResponseTime = report.getAllAvgResponseTime();
