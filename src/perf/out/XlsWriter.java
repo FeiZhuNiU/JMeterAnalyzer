@@ -17,28 +17,27 @@ import java.util.List;
  */
 
 public class XlsWriter {
-    public static void writeXls(List<String> headers, List<CSVRecord> records, String dstFileName, String sheetName){
-        Assert.assertNotNull(headers);
-        Assert.assertNotNull(records);
+    public static void writeXls(List<String> headers, List<CSVRecord> records, String dstFileName, String sheetName) {
+        assert headers != null;
+        assert records != null;
 
         try {
             File file = new File(dstFileName);
             HSSFWorkbook workbook;
-            if(file.exists()) {
+            if (file.exists()) {
                 workbook = new HSSFWorkbook(new FileInputStream(file));
-            }
-            else {
+            } else {
                 workbook = new HSSFWorkbook();
             }
             HSSFSheet sheet = workbook.createSheet(sheetName);
             sheet.createRow(0);
             for (CSVRecord record : records) {
-                sheet.createRow(records.indexOf(record)+1);
+                sheet.createRow(records.indexOf(record) + 1);
             }
             /**
              * write head row
              */
-            int col = 0,row = 0;
+            int col = 0, row = 0;
             for (String header : headers) {
                 HSSFCell cell = sheet.getRow(0).createCell(col++);
                 cell.setCellValue(header);
@@ -48,7 +47,7 @@ public class XlsWriter {
              */
             for (CSVRecord record : records) {
                 col = 0;
-                HSSFRow cur_row = sheet.getRow(records.indexOf(record)+1);
+                HSSFRow cur_row = sheet.getRow(records.indexOf(record) + 1);
                 for (String str : record) {
                     HSSFCell cell = cur_row.createCell(col++);
                     cell.setCellValue(str);

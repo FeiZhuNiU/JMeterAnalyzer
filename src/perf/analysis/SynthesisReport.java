@@ -90,7 +90,7 @@ public class SynthesisReport extends Report {
      * @param successOnly
      * @return
      */
-    private List<String> getValueListOfSpecifiedLabel(String label, SimpleDataCSV.Header header, boolean successOnly) {
+    private List<String> getValueListByLabel(String label, SimpleDataCSV.Header header, boolean successOnly) {
         List<String> ret = new ArrayList<>();
         List<CSVRecord> tmpRecords = getRecordsByLabel(label, successOnly);
         for (CSVRecord tmpRecord : tmpRecords) {
@@ -146,8 +146,6 @@ public class SynthesisReport extends Report {
         double secondConsumed = (timeEnd - timeStart) / 1000;
         return (double)recordList.size() / secondConsumed;
     }
-
-
 
 
     @Deprecated
