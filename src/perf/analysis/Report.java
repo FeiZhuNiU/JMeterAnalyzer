@@ -12,17 +12,17 @@ import java.util.List;
  */
 public abstract class Report {
 //    protected JMeterCSV csv;
-    protected List<CSVRecord> data;
-    protected List<String> headers;
-    protected List<CSVRecord> reports;
+    protected List<CSVRecord> originData;
+    protected List<String> reportHeaders;
+    protected List<List<String>> reportData;
 
     public Report(JMeterCSV csv) {
 //        this.csv = csv;
-        this.data = csv.getRecords();
-        headers = new ArrayList<>();
-        reports = new ArrayList<>();
+        this.originData = csv.getRecords();
+        reportHeaders = new ArrayList<>();
+        reportData = new ArrayList<>();
     }
 
-    public abstract void generateReport();
+    public abstract void generateReport(String dstFileName, String sheetName);
 
 }

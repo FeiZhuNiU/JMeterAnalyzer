@@ -1,12 +1,9 @@
 package perf.out;
 
-import org.apache.commons.csv.CSVRecord;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.junit.Assert;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,7 +14,9 @@ import java.util.List;
  */
 
 public class XlsWriter {
-    public static void writeXls(List<String> headers, List<CSVRecord> records, String dstFileName, String sheetName) {
+
+
+    public static void writeXls(List<String> headers, List<List<String>> records, String dstFileName, String sheetName) {
         assert headers != null;
         assert records != null;
 
@@ -30,9 +29,10 @@ public class XlsWriter {
                 workbook = new HSSFWorkbook();
             }
             HSSFSheet sheet = workbook.createSheet(sheetName);
-            sheet.createRow(0);
-            for (CSVRecord record : records) {
-                sheet.createRow(records.indexOf(record) + 1);
+            // create rows
+            int records_num = records.size();
+            for(int i = 0; i <= records_num ; ++i){
+                sheet.createRow(i);
             }
             /**
              * write head row
@@ -43,9 +43,9 @@ public class XlsWriter {
                 cell.setCellValue(header);
             }
             /**
-             * write data rows
+             * write originData rows
              */
-            for (CSVRecord record : records) {
+            for (List<String> record : records) {
                 col = 0;
                 HSSFRow cur_row = sheet.getRow(records.indexOf(record) + 1);
                 for (String str : record) {

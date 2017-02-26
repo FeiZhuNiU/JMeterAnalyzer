@@ -6,7 +6,9 @@ import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math3.stat.descriptive.rank.Max;
 import org.apache.commons.math3.stat.descriptive.rank.Min;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -70,6 +72,15 @@ public class CommonUtils {
             if (record.get(header).equals(val)) {
                 ret++;
             }
+        }
+        return ret;
+    }
+
+    public static List<String> csvRecordtoList(CSVRecord record){
+        List<String> ret = new ArrayList<>();
+        Iterator<String> iterator = record.iterator();
+        while(iterator.hasNext()){
+            ret.add(iterator.next());
         }
         return ret;
     }

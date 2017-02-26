@@ -1,9 +1,13 @@
 package perf;
 
+import org.apache.commons.csv.CSVRecord;
+import perf.analysis.CommonUtils;
 import perf.analysis.SynthesisReport;
 import perf.data.SimpleDataCSV;
 import perf.out.XlsWriter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -15,21 +19,21 @@ public class Test {
         SimpleDataCSV csv = new SimpleDataCSV("resources\\50.jtl");
         SynthesisReport report = new SynthesisReport(csv);
         report.filterByTime(700,1500);
-        XlsWriter.writeXls(csv.getHeaders(),csv.getRecords(),"test3.xls","sheet4");
-//        csv.writeToXls("test2.xls");
+        report.generateReport("synthesis report.xls","mySheet");
+//        List<List<String>> data = new ArrayList<>();
+//        List<CSVRecord> records = csv.getRecords();
+//        for (CSVRecord record : records) {
+//            data.add(CommonUtils.csvRecordtoList(record));
+//        }
+//        XlsWriter.writeXls(csv.getHeaders(),data,"test3.xls","sheet4");
+////        csv.writeToXls("test2.xls");
         System.out.println(report.getAvgResponseTime("D2REST-Delete"));
         Map<String, Double> allAvgResponseTime = report.getAllAvgResponseTime();
         allAvgResponseTime.forEach((k,v)->{
             System.out.println(k +"\t\t\t" +v);
         });
 
-//        System.out.println(csv.getHeaders());
-//
-//        csv.getRecordsByLabel(Header.LABEL, "D2REST-Delete").forEach(record -> {
-//            System.out.println(record.get("timeStamp"));
-//        });
-//        System.out.println(csv.getSuccessRate(Header.LABEL, "D2REST-Delete"));
-//        System.out.println(csv.avg(csv.getRecords(), Header.ELAPSED.getKey()));
+
     }
 
 }

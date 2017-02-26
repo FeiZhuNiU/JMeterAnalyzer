@@ -2,7 +2,9 @@ package perf.analysis;
 
 import org.apache.commons.csv.CSVRecord;
 import perf.data.SimpleDataCSV;
+import perf.out.XlsWriter;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 /**
@@ -10,22 +12,29 @@ import java.util.*;
  */
 public class SynthesisReport extends Report {
 
+    private Set<String> labelSet;
+
     public SynthesisReport(SimpleDataCSV csv) {
         super(csv);
         for (Header header : Header.values()) {
-            headers.add(header.toString());
+            reportHeaders.add(header.toString());
+        }
+        labelSet = new TreeSet<>();
+        List<CSVRecord> records = csv.getRecords();
+        for (CSVRecord record : records) {
+            labelSet.add(record.get(SimpleDataCSV.Header.LABEL));
         }
     }
 
     public void filterByTime(long startSecond, long endSecond) {
-        long startTimeStamp = Long.parseLong(data.get(0).get(SimpleDataCSV.Header.TIMESTAMP));
+        long startTimeStamp = Long.parseLong(originData.get(0).get(SimpleDataCSV.Header.TIMESTAMP));
         long startOffset = startTimeStamp + startSecond * 1000;
         long endOffset = startTimeStamp + endSecond * 1000;
-        int l = 0, r = data.size();
+        int l = 0, r = originData.size();
         int start, end;
         while (r > l + 1) {
             int mid = l + (r - l) / 2;
-            long curTimeStamp = Long.parseLong(data.get(mid).get(SimpleDataCSV.Header.TIMESTAMP));
+            long curTimeStamp = Long.parseLong(originData.get(mid).get(SimpleDataCSV.Header.TIMESTAMP));
             if (curTimeStamp < startOffset) {
                 l = mid;
             } else {
@@ -34,10 +43,10 @@ public class SynthesisReport extends Report {
         }
         start = r;
         l = 0;
-        r = data.size();
+        r = originData.size();
         while (r > l + 1) {
             int mid = l + (r - l) / 2;
-            long curTimeStamp = Long.parseLong(data.get(mid).get(SimpleDataCSV.Header.TIMESTAMP));
+            long curTimeStamp = Long.parseLong(originData.get(mid).get(SimpleDataCSV.Header.TIMESTAMP));
             if (curTimeStamp < endOffset) {
                 l = mid;
             } else {
@@ -45,7 +54,7 @@ public class SynthesisReport extends Report {
             }
         }
         end = l;
-        data = data.subList(start, end);
+        originData = originData.subList(start, end);
     }
 
     private boolean isSuccess(CSVRecord record) {
@@ -67,14 +76,14 @@ public class SynthesisReport extends Report {
     }
 
     /**
-     * return a list of data according to its label
+     * return a list of originData according to its label
      *
      * @param label
      * @return
      */
     private List<CSVRecord> getRecordsByLabel(String label, boolean successOnly) {
         List<CSVRecord> ret = new ArrayList<>();
-        for (CSVRecord record : data) {
+        for (CSVRecord record : originData) {
             if (isSpecifiedLabel(record, label)) {
                 if (successOnly && !isSuccess(record))
                     continue;
@@ -152,7 +161,7 @@ public class SynthesisReport extends Report {
     public Map<String, Double> getAllAvgResponseTime() {
         Map<String, Double> ret = new TreeMap<>();
         Map<String, List<CSVRecord>> sortedMap = new HashMap<>();
-        for (CSVRecord record : data) {
+        for (CSVRecord record : originData) {
             String label = record.get(SimpleDataCSV.Header.LABEL);
             sortedMap.computeIfAbsent(label, k -> new ArrayList<>());
             sortedMap.get(label).add(record);
@@ -165,7 +174,32 @@ public class SynthesisReport extends Report {
 
 
     @Override
-    public void generateReport() {
+    public void generateReport(String dstFileName, String sheetName) {
+        DecimalFormat df =new DecimalFormat("#.##");
+        for (String label : labelSet) {
+            List<String> curLabelReport = new ArrayList<>();
+            String sample = String.valueOf(getSampleCount(label));
+            String average = df.format(getAvgResponseTime(label)/1000.0);
+            String min = String.valueOf(getMinResponseTime(label)/1000.0);
+            String max = String.valueOf(getMaxResponseTime(label)/1000.0);
+            String line90 = String.valueOf(getResponseTime90PercentLine(label)/1000.0);
+            String stdDev = df.format(getStandartDeviation(label));
+            String error = df.format(getErrorRate(label));
+            String throughput = df.format(getThroughput(label));
+
+            curLabelReport.add(label);
+            curLabelReport.add(sample);
+            curLabelReport.add(average);
+            curLabelReport.add(min);
+            curLabelReport.add(max);
+            curLabelReport.add(line90);
+            curLabelReport.add(stdDev);
+            curLabelReport.add(error);
+            curLabelReport.add(throughput);
+            reportData.add(curLabelReport);
+        }
+
+        XlsWriter.writeXls(reportHeaders,reportData,dstFileName,sheetName);
 
     }
 
