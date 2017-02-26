@@ -17,7 +17,7 @@ public class Test {
         report.filterByTime(700,1500);
         XlsWriter.writeXls(csv.getHeaders(),csv.getRecords(),"test3.xls","sheet4");
 //        csv.writeToXls("test2.xls");
-        System.out.println(report.avgResponseTime("D2REST-Delete"));
+        System.out.println(report.getAvgResponseTime("D2REST-Delete"));
         Map<String, Double> allAvgResponseTime = report.getAllAvgResponseTime();
         allAvgResponseTime.forEach((k,v)->{
             System.out.println(k +"\t\t\t" +v);

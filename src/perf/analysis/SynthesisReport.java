@@ -48,6 +48,14 @@ public class SynthesisReport extends Report {
         data = data.subList(start, end);
     }
 
+    private boolean isSuccess(CSVRecord record) {
+        return "true".equals(record.get(SimpleDataCSV.Header.SUCCESS));
+    }
+
+    private boolean isSpecifiedLabel(CSVRecord record, String label) {
+        return label.equals(record.get(SimpleDataCSV.Header.LABEL));
+    }
+
     private double getSuccessRate(List<CSVRecord> records) {
         int success = 0;
         for (CSVRecord record : records) {
@@ -64,21 +72,85 @@ public class SynthesisReport extends Report {
      * @param label
      * @return
      */
-    public List<CSVRecord> getRecordsByLabel(String label) {
+    private List<CSVRecord> getRecordsByLabel(String label, boolean successOnly) {
         List<CSVRecord> ret = new ArrayList<>();
         for (CSVRecord record : data) {
             if (isSpecifiedLabel(record, label)) {
+                if (successOnly && !isSuccess(record))
+                    continue;
                 ret.add(record);
             }
         }
         return ret;
     }
 
-    public double avgResponseTime(String label) {
-        List<CSVRecord> recordList = getRecordsByLabel(label);
-        return CommonAnalysisUtils.avg(recordList, SimpleDataCSV.Header.ELAPSED);
+    /**
+     * @param label
+     * @param header
+     * @param successOnly
+     * @return
+     */
+    private List<String> getValueListOfSpecifiedLabel(String label, SimpleDataCSV.Header header, boolean successOnly) {
+        List<String> ret = new ArrayList<>();
+        List<CSVRecord> tmpRecords = getRecordsByLabel(label, successOnly);
+        for (CSVRecord tmpRecord : tmpRecords) {
+            ret.add(tmpRecord.get(header));
+        }
+        return ret;
     }
 
+    public int getSampleCount(String label) {
+        List<CSVRecord> recordList = getRecordsByLabel(label, false);
+        return recordList.size();
+    }
+
+    public double getAvgResponseTime(String label) {
+        List<CSVRecord> recordList = getRecordsByLabel(label, true);
+        return CommonUtils.avg(recordList, SimpleDataCSV.Header.ELAPSED.toString());
+    }
+
+    public int getMinResponseTime(String label) {
+        List<CSVRecord> recordList = getRecordsByLabel(label, true);
+        return (int) CommonUtils.getMinVal(recordList, SimpleDataCSV.Header.ELAPSED.toString());
+    }
+
+    public int getMaxResponseTime(String label) {
+        List<CSVRecord> recordList = getRecordsByLabel(label, true);
+        return (int) CommonUtils.getMaxVal(recordList, SimpleDataCSV.Header.ELAPSED.toString());
+    }
+
+    public int getResponseTime90PercentLine(String label) {
+        List<CSVRecord> recordList = getRecordsByLabel(label, true);
+        return (int) CommonUtils.getSpecifiedPositionVal(recordList, SimpleDataCSV.Header.ELAPSED.toString(), 90);
+    }
+
+    public double getStandartDeviation(String label) {
+        List<CSVRecord> recordList = getRecordsByLabel(label, true);
+        return CommonUtils.getStandardDeviation(recordList, SimpleDataCSV.Header.ELAPSED.toString());
+    }
+
+    public double getErrorRate(String label) {
+        List<CSVRecord> recordList = getRecordsByLabel(label, false);
+        return 1 - getSuccessRate(recordList);
+    }
+
+    /**
+     * return hit/sec
+     * @param label
+     * @return
+     */
+    public double getThroughput(String label) {
+        List<CSVRecord> recordList = getRecordsByLabel(label, true);
+        long timeStart = Long.parseLong(recordList.get(0).get(SimpleDataCSV.Header.TIMESTAMP));
+        long timeEnd = Long.parseLong(recordList.get(recordList.size() - 1).get(SimpleDataCSV.Header.TIMESTAMP));
+        double secondConsumed = (timeEnd - timeStart) / 1000;
+        return (double)recordList.size() / secondConsumed;
+    }
+
+
+
+
+    @Deprecated
     public Map<String, Double> getAllAvgResponseTime() {
         Map<String, Double> ret = new TreeMap<>();
         Map<String, List<CSVRecord>> sortedMap = new HashMap<>();
@@ -88,40 +160,18 @@ public class SynthesisReport extends Report {
             sortedMap.get(label).add(record);
         }
         sortedMap.forEach((label, list) -> {
-            ret.put(label, CommonAnalysisUtils.avg(list, SimpleDataCSV.Header.ELAPSED));
+            ret.put(label, CommonUtils.avg(list, SimpleDataCSV.Header.ELAPSED.toString()));
         });
         return ret;
     }
 
-    /**
-     * successed
-     * @param label
-     * @param header
-     * @return
-     */
-    private List<String> getValueListOfSpecifiedLabel(String label, SimpleDataCSV.Header header){
-        List<String> ret = new ArrayList<>();
-        for (CSVRecord record : data) {
-            if(isSpecifiedLabel(record, label) && isSuccess(record)){
-                ret.add(record.get(header));
-            }
-        }
-        return ret;
-    }
-
-    private boolean isSuccess(CSVRecord record){
-        return "true".equals(record.get(SimpleDataCSV.Header.SUCCESS));
-    }
-    private boolean isSpecifiedLabel(CSVRecord record, String label){
-        return label.equals(record.get(SimpleDataCSV.Header.LABEL));
-    }
 
     @Override
     public void generateReport() {
 
     }
 
-    public enum Header{
+    public enum Header {
         LABEL("Label"),
         SAMPLES("#Samples"),
         AVERAGE("Average"),
