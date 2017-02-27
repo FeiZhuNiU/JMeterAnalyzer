@@ -2,26 +2,33 @@ package perf.data;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Eric Yu on 2017/2/23.
  */
-public class SimpleDataCSV extends JMeterCSV {
+public class SimpleDataCSV extends BasicCSV {
 
     protected List<String> headers;
+    protected String fileName;
+    protected CSVParser parser;
 
+    public CSVParser getParser() {
+        return parser;
+    }
+    public String getFileName() {
+        return fileName;
+    }
     public List<String> getHeaders() {
         return headers;
     }
 
     public SimpleDataCSV(String dataFileName) {
-        super(dataFileName);
         try {
             parser = CSVParser.parse(new File(dataFileName), Charset.defaultCharset(), CSVFormat.DEFAULT.withHeader());
             records = parser.getRecords();
@@ -67,6 +74,13 @@ public class SimpleDataCSV extends JMeterCSV {
         @Override
         public String toString() {
             return key;
+        }
+    }
+    public void close() {
+        try {
+            parser.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

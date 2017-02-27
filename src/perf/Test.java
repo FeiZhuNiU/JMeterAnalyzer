@@ -1,13 +1,9 @@
 package perf;
 
-import org.apache.commons.csv.CSVRecord;
-import perf.analysis.CommonUtils;
 import perf.analysis.SynthesisReport;
+import perf.data.ReportCSV;
 import perf.data.SimpleDataCSV;
-import perf.out.XlsWriter;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,15 +14,10 @@ public class Test {
     public static void main(String[] args) {
         SimpleDataCSV csv = new SimpleDataCSV("resources\\50.jtl");
         SynthesisReport report = new SynthesisReport(csv);
-        report.filterByTime(700,1500);
-        report.generateReport("synthesis report.xls","mySheet");
-//        List<List<String>> data = new ArrayList<>();
-//        List<CSVRecord> records = csv.getRecords();
-//        for (CSVRecord record : records) {
-//            data.add(CommonUtils.csvRecordtoList(record));
-//        }
-//        XlsWriter.writeXls(csv.getHeaders(),data,"test3.xls","sheet4");
-////        csv.writeToXls("test2.xls");
+        report.autoFilter(50);
+        ReportCSV reportCSV1 = report.generateReport();
+        reportCSV1.writeXls("aaa.xls","sheeet");
+
         System.out.println(report.getAvgResponseTime("D2REST-Delete"));
         Map<String, Double> allAvgResponseTime = report.getAllAvgResponseTime();
         allAvgResponseTime.forEach((k,v)->{

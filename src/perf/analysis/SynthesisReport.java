@@ -1,8 +1,8 @@
 package perf.analysis;
 
 import org.apache.commons.csv.CSVRecord;
+import perf.data.ReportCSV;
 import perf.data.SimpleDataCSV;
-import perf.out.XlsWriter;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -10,7 +10,7 @@ import java.util.*;
 /**
  * Created by Eric Yu on 2017/2/24.
  */
-public class SynthesisReport extends Report {
+public class SynthesisReport extends AbstractAnalyzer {
 
     private Set<String> labelSet;
 
@@ -26,10 +26,44 @@ public class SynthesisReport extends Report {
         }
     }
 
-    public void filterByTime(long startSecond, long endSecond) {
+    /**
+     * get start and end timestamp automatically according to given threadNum
+     * needs to be optimized in algorithm
+     * @param threadNum
+     */
+    public void autoFilter(int threadNum) {
+        long startTimeStamp = 0, endTimeStamp = 0;
+        boolean startPointAlreadyFound = false;
+        long firstTimeStamp = Long.parseLong(originData.get(0).get(SimpleDataCSV.Header.TIMESTAMP));
+        for (CSVRecord data : originData) {
+            int cur_threads = Integer.parseInt(data.get(SimpleDataCSV.Header.ALL_THREADS));
+            long cur_timeStamp = Long.parseLong(data.get(SimpleDataCSV.Header.TIMESTAMP));
+            if (!startPointAlreadyFound) {
+                if ( cur_threads == threadNum ) {
+                    startTimeStamp = cur_timeStamp;
+                    startPointAlreadyFound = true;
+                }
+            }
+            else{
+                if (cur_threads < threadNum) {
+                    endTimeStamp = cur_timeStamp;
+                    break;
+                }
+            }
+        }
+        assert startTimeStamp != 0;
+        assert endTimeStamp != 0;
+
+        long startOffsetInSecond = (startTimeStamp - firstTimeStamp) / 1000 + 100;
+        long endOffsetInSecond = (endTimeStamp - firstTimeStamp) / 1000 - 100;
+        filterByTime(startOffsetInSecond, endOffsetInSecond);
+    }
+
+
+    public void filterByTime(long startOffsetInSecond, long endOffsetInSecond) {
         long startTimeStamp = Long.parseLong(originData.get(0).get(SimpleDataCSV.Header.TIMESTAMP));
-        long startOffset = startTimeStamp + startSecond * 1000;
-        long endOffset = startTimeStamp + endSecond * 1000;
+        long startOffset = startTimeStamp + startOffsetInSecond * 1000;
+        long endOffset = startTimeStamp + endOffsetInSecond * 1000;
         int l = 0, r = originData.size();
         int start, end;
         while (r > l + 1) {
@@ -174,15 +208,15 @@ public class SynthesisReport extends Report {
 
 
     @Override
-    public void generateReport(String dstFileName, String sheetName) {
+    public ReportCSV generateReport() {
         DecimalFormat df =new DecimalFormat("#.##");
         for (String label : labelSet) {
             List<String> curLabelReport = new ArrayList<>();
             String sample = String.valueOf(getSampleCount(label));
             String average = df.format(getAvgResponseTime(label)/1000.0);
-            String min = String.valueOf(getMinResponseTime(label)/1000.0);
-            String max = String.valueOf(getMaxResponseTime(label)/1000.0);
-            String line90 = String.valueOf(getResponseTime90PercentLine(label)/1000.0);
+            String min = df.format(getMinResponseTime(label)/1000.0);
+            String max = df.format(getMaxResponseTime(label)/1000.0);
+            String line90 = df.format(getResponseTime90PercentLine(label)/1000.0);
             String stdDev = df.format(getStandartDeviation(label));
             String error = df.format(getErrorRate(label));
             String throughput = df.format(getThroughput(label));
@@ -198,8 +232,7 @@ public class SynthesisReport extends Report {
             curLabelReport.add(throughput);
             reportData.add(curLabelReport);
         }
-
-        XlsWriter.writeXls(reportHeaders,reportData,dstFileName,sheetName);
+        return new ReportCSV(reportHeaders, reportData);
 
     }
 
