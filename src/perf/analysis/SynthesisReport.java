@@ -12,9 +12,9 @@ import java.util.*;
  */
 public class SynthesisReport extends AbstractReport {
 
+    protected List<CSVRecord> originData;
     private Set<String> labelSet;
     private int userNum = 0;
-    private ReportCSV report = null;
 
     public Set<String> getLabelSet() {
         return labelSet;
@@ -25,7 +25,8 @@ public class SynthesisReport extends AbstractReport {
     }
 
     public SynthesisReport(SimpleDataCSV csv) {
-        super(csv);
+        super();
+        this.originData = csv.getRecords();
         for (Header header : Header.values()) {
             reportHeaders.add(header.toString());
         }

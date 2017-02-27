@@ -12,15 +12,11 @@ import java.util.List;
  * yulin.jay@gmail.com
  */
 public abstract class AbstractReport {
-//    protected BasicCSV csv;
-    protected List<CSVRecord> originData;
     protected List<String> reportHeaders;
     protected List<List<String>> reportData;
     protected ReportCSV report = null;
 
-    public AbstractReport(BasicCSV csv) {
-//        this.csv = csv;
-        this.originData = csv.getRecords();
+    public AbstractReport() {
         reportHeaders = new ArrayList<>();
         reportData = new ArrayList<>();
     }
