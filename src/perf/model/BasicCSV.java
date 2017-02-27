@@ -1,4 +1,4 @@
-package perf.data;
+package perf.model;
 
 import org.apache.commons.csv.CSVRecord;
 

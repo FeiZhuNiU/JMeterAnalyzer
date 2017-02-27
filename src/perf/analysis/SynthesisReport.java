@@ -1,8 +1,8 @@
 package perf.analysis;
 
 import org.apache.commons.csv.CSVRecord;
-import perf.data.ReportCSV;
-import perf.data.SimpleDataCSV;
+import perf.model.ReportCSV;
+import perf.model.SimpleDataCSV;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -10,9 +10,19 @@ import java.util.*;
 /**
  * Created by Eric Yu on 2017/2/24.
  */
-public class SynthesisReport extends AbstractAnalyzer {
+public class SynthesisReport extends AbstractReport {
 
     private Set<String> labelSet;
+    private int userNum = 0;
+    private ReportCSV report = null;
+
+    public Set<String> getLabelSet() {
+        return labelSet;
+    }
+
+    public int getUserNum() {
+        return userNum;
+    }
 
     public SynthesisReport(SimpleDataCSV csv) {
         super(csv);
@@ -24,14 +34,14 @@ public class SynthesisReport extends AbstractAnalyzer {
         for (CSVRecord record : records) {
             labelSet.add(record.get(SimpleDataCSV.Header.LABEL));
         }
+        userNum = Integer.parseInt(csv.getFileName().split("\\.")[0]);
     }
 
     /**
      * get start and end timestamp automatically according to given threadNum
      * needs to be optimized in algorithm
-     * @param threadNum
      */
-    public void autoFilter(int threadNum) {
+    public void autoFilter() {
         long startTimeStamp = 0, endTimeStamp = 0;
         boolean startPointAlreadyFound = false;
         long firstTimeStamp = Long.parseLong(originData.get(0).get(SimpleDataCSV.Header.TIMESTAMP));
@@ -39,13 +49,13 @@ public class SynthesisReport extends AbstractAnalyzer {
             int cur_threads = Integer.parseInt(data.get(SimpleDataCSV.Header.ALL_THREADS));
             long cur_timeStamp = Long.parseLong(data.get(SimpleDataCSV.Header.TIMESTAMP));
             if (!startPointAlreadyFound) {
-                if ( cur_threads == threadNum ) {
+                if ( cur_threads == userNum ) {
                     startTimeStamp = cur_timeStamp;
                     startPointAlreadyFound = true;
                 }
             }
             else{
-                if (cur_threads < threadNum) {
+                if (cur_threads < userNum) {
                     endTimeStamp = cur_timeStamp;
                     break;
                 }
@@ -208,31 +218,34 @@ public class SynthesisReport extends AbstractAnalyzer {
 
 
     @Override
-    public ReportCSV generateReport() {
-        DecimalFormat df =new DecimalFormat("#.##");
-        for (String label : labelSet) {
-            List<String> curLabelReport = new ArrayList<>();
-            String sample = String.valueOf(getSampleCount(label));
-            String average = df.format(getAvgResponseTime(label)/1000.0);
-            String min = df.format(getMinResponseTime(label)/1000.0);
-            String max = df.format(getMaxResponseTime(label)/1000.0);
-            String line90 = df.format(getResponseTime90PercentLine(label)/1000.0);
-            String stdDev = df.format(getStandartDeviation(label));
-            String error = df.format(getErrorRate(label));
-            String throughput = df.format(getThroughput(label));
+    public ReportCSV getReport() {
+        if(report==null) {
+            DecimalFormat df = new DecimalFormat("#.##");
+            for (String label : labelSet) {
+                List<String> curLabelReport = new ArrayList<>();
+                String sample = String.valueOf(getSampleCount(label));
+                String average = df.format(getAvgResponseTime(label) / 1000.0);
+                String min = df.format(getMinResponseTime(label) / 1000.0);
+                String max = df.format(getMaxResponseTime(label) / 1000.0);
+                String line90 = df.format(getResponseTime90PercentLine(label) / 1000.0);
+                String stdDev = df.format(getStandartDeviation(label));
+                String error = df.format(getErrorRate(label));
+                String throughput = df.format(getThroughput(label));
 
-            curLabelReport.add(label);
-            curLabelReport.add(sample);
-            curLabelReport.add(average);
-            curLabelReport.add(min);
-            curLabelReport.add(max);
-            curLabelReport.add(line90);
-            curLabelReport.add(stdDev);
-            curLabelReport.add(error);
-            curLabelReport.add(throughput);
-            reportData.add(curLabelReport);
+                curLabelReport.add(label);
+                curLabelReport.add(sample);
+                curLabelReport.add(average);
+                curLabelReport.add(min);
+                curLabelReport.add(max);
+                curLabelReport.add(line90);
+                curLabelReport.add(stdDev);
+                curLabelReport.add(error);
+                curLabelReport.add(throughput);
+                reportData.add(curLabelReport);
+            }
+            report = new ReportCSV(reportHeaders, reportData);
         }
-        return new ReportCSV(reportHeaders, reportData);
+        return report;
 
     }
 

@@ -1,4 +1,4 @@
-package perf.data;
+package perf.model;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -36,7 +36,7 @@ public class SimpleDataCSV extends BasicCSV {
             System.out.println("there is an error when reading file!");
             e.printStackTrace();
         }
-        this.fileName = dataFileName;
+        this.fileName = new File(dataFileName).getName();
         this.headers = new ArrayList<>(parser.getHeaderMap().keySet());
     }
 

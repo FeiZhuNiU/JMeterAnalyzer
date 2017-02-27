@@ -38,10 +38,6 @@ public class CommonUtils {
         return mean.evaluate(data, 0, data.length);
     }
 
-
-    //        public static double avg(List<CSVRecord> records, SimpleDataCSV.Header header) {
-//        return avg(records, header.toString());
-//    }
     public static double getMinVal(List<CSVRecord> records, String header) {
         double[] data = getValueArray(records, header);
         Min min = new Min();

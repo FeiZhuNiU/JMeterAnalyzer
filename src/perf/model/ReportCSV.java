@@ -1,4 +1,4 @@
-package perf.data;
+package perf.model;
 
 import perf.out.XlsWriter;
 
@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Created by Eric Yu on 2017/2/27.
  */
-public class ReportCSV extends BasicCSV {
+public class ReportCSV{
     protected List<String> headers;
     protected List<List<String>> data;
 
