@@ -1,6 +1,6 @@
 package perf.model;
 
-import perf.out.XlsWriter;
+import perf.io.XlsWriter;
 
 import java.util.List;
 

@@ -36,6 +36,8 @@ public class SynthesisReport extends AbstractReport {
             labelSet.add(record.get(SimpleDataCSV.Header.LABEL));
         }
         userNum = Integer.parseInt(csv.getFileName().split("\\.")[0]);
+        autoFilter();
+        report = getReport();
     }
 
     /**
@@ -197,7 +199,7 @@ public class SynthesisReport extends AbstractReport {
         List<CSVRecord> recordList = getRecordsByLabel(label, true);
         long timeStart = Long.parseLong(recordList.get(0).get(SimpleDataCSV.Header.TIMESTAMP));
         long timeEnd = Long.parseLong(recordList.get(recordList.size() - 1).get(SimpleDataCSV.Header.TIMESTAMP));
-        double secondConsumed = (timeEnd - timeStart) / 1000;
+        double secondConsumed = (timeEnd - timeStart) / 1000.0;
         return (double)recordList.size() / secondConsumed;
     }
 
@@ -220,6 +222,7 @@ public class SynthesisReport extends AbstractReport {
 
     @Override
     public ReportCSV getReport() {
+        List<List<String>> reportData = new ArrayList<>();
         if(report==null) {
             DecimalFormat df = new DecimalFormat("#.##");
             for (String label : labelSet) {

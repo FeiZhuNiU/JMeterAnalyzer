@@ -12,14 +12,19 @@ public class LoadTestReport extends AbstractReport{
     List<SynthesisReport> synthesisReports;
 
     public LoadTestReport(List<SynthesisReport> synthesisReports) {
-        super();
         this.synthesisReports = synthesisReports;
     }
+
+    /**
+     * it's recommended to add synthesis reports in constructor
+     * @param report
+     */
     public void addSynthesisReport(SynthesisReport report){
         synthesisReports.add(report);
     }
 
     public ReportCSV getReport() {
+        List<List<String>> reportData = new ArrayList<>();
         if(report == null) {
             reportHeaders.add("Transaction");
             int transactionNum = synthesisReports.get(0).getLabelSet().size();

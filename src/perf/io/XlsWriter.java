@@ -1,4 +1,4 @@
-package perf.out;
+package perf.io;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
