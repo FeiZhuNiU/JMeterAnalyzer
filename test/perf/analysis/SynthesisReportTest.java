@@ -16,7 +16,7 @@ public class SynthesisReportTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        report = new SynthesisReport(new SimpleDataWriterCSV("resources/50.jtl"));
+        report = new SynthesisReport(new SimpleDataWriterCSV("resources/50.jtl"), true);
     }
 
     @AfterEach
@@ -37,7 +37,7 @@ public class SynthesisReportTest {
 
     @Test
     void autoFilter() {
-        assertTrue(report.getFilteredData().size() < report.getOriginData().size());
+        assertTrue(report.getFilteredData().size() < report.getCsv().getRecords().size());
     }
 
 

@@ -19,9 +19,9 @@ public class Test {
         SimpleDataWriterCSV csv3 = new SimpleDataWriterCSV("resources/200.jtl");
 
         //Synthesis report objects
-        SynthesisReport report1 = new SynthesisReport(csv1);
-        SynthesisReport report2 = new SynthesisReport(csv2);
-        SynthesisReport report3 = new SynthesisReport(csv3);
+        SynthesisReport report1 = new SynthesisReport(csv1, true);
+        SynthesisReport report2 = new SynthesisReport(csv2, true);
+        SynthesisReport report3 = new SynthesisReport(csv3, true);
         // write synthesis report to excel
         report1.getReport().writeXls("final.xls","50");
         report2.getReport().writeXls("final.xls","100");
@@ -35,6 +35,10 @@ public class Test {
         LoadTestReport finalReport = new LoadTestReport(reports);
         // write to excel
         finalReport.getReport().writeXls("final.xls", "loadReport");
+
+//        SimpleDataWriterCSV csv4 = new SimpleDataWriterCSV("resources/RU_50.csv");
+//        SynthesisReport report = new SynthesisReport(csv4, false);
+//        report.getReport().writeXls("RU.xls", "ttt");
 
 
     }

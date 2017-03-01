@@ -13,11 +13,17 @@ import java.util.*;
  */
 public class SynthesisReport extends AbstractReport {
 
-    protected List<CSVRecord> originData;
+    protected SimpleDataWriterCSV csv = null;
     protected List<CSVRecord> filteredData;
     protected Set<String> labelSet;
     protected int userNum = 0;
+    protected long filteredStartTimeStamp = 0;
+    protected long filteredEndTimeStamp = 0;
 
+
+    public SimpleDataWriterCSV getCsv() {
+        return csv;
+    }
     public Set<String> getLabelSet() {
         return labelSet;
     }
@@ -30,13 +36,10 @@ public class SynthesisReport extends AbstractReport {
         return filteredData;
     }
 
-    public List<CSVRecord> getOriginData() {
-        return originData;
-    }
-
-    public SynthesisReport(SimpleDataWriterCSV csv) {
+    public SynthesisReport(SimpleDataWriterCSV csv, boolean useAutoFilter) {
         super();
-        this.originData = csv.getRecords();
+        this.csv = csv;
+//        this.originData = csv.getRecords();
         for (Header header : Header.values()) {
             reportHeaders.add(header.toString());
         }
@@ -45,55 +48,62 @@ public class SynthesisReport extends AbstractReport {
         for (CSVRecord record : records) {
             labelSet.add(record.get(CSVHeader.LABEL));
         }
-        userNum = Integer.parseInt(csv.getFileName().split("\\.")[0]);
-        autoFilter();
-        report = getReport();
+        if(useAutoFilter) {
+            userNum = Integer.parseInt(csv.getFileName().split("\\.")[0]);
+            autoFilter();
+        }
+        else {
+            filteredStartTimeStamp = Long.parseLong(csv.getRecords().get(0).get(CSVHeader.TIMESTAMP));
+            filteredEndTimeStamp = Long.parseLong(csv.getRecords().get(csv.getRecords().size()-1).get(CSVHeader.TIMESTAMP));
+            this.filteredData = csv.getRecords();
+        }
+//        report = getReport();
     }
 
     /**
-     * get start and end timestamp automatically according to given threadNum
+     * get start and end timestamp automatically according to given threadNum,
+     * the file name should also be the threadNum
+     *
      * needs to be optimized in algorithm
      */
     public void autoFilter() {
-        long startTimeStamp = 0, endTimeStamp = 0;
         boolean startPointAlreadyFound = false;
-        long firstTimeStamp = Long.parseLong(originData.get(0).get(CSVHeader.TIMESTAMP));
-        for (CSVRecord data : originData) {
+        long firstTimeStamp = Long.parseLong(csv.getRecords().get(0).get(CSVHeader.TIMESTAMP));
+        for (CSVRecord data : csv.getRecords()) {
             int cur_threads = Integer.parseInt(data.get(CSVHeader.ALL_THREADS));
             long cur_timeStamp = Long.parseLong(data.get(CSVHeader.TIMESTAMP));
             if (!startPointAlreadyFound) {
                 if (cur_threads == userNum) {
-                    startTimeStamp = cur_timeStamp;
+                    filteredStartTimeStamp = cur_timeStamp;
                     startPointAlreadyFound = true;
                 }
             } else {
                 if (cur_threads < userNum) {
-                    endTimeStamp = cur_timeStamp;
+                    filteredEndTimeStamp = cur_timeStamp;
                     break;
                 }
             }
         }
-        assert startTimeStamp != 0;
-        assert endTimeStamp != 0;
+        assert filteredStartTimeStamp != 0;
+        assert filteredEndTimeStamp != 0;
 
-        long timeElapsed = endTimeStamp - startTimeStamp;
+        long timeElapsed = filteredEndTimeStamp - filteredStartTimeStamp;
+        this.filteredStartTimeStamp = filteredStartTimeStamp + timeElapsed / 10;
+        this.filteredEndTimeStamp = filteredEndTimeStamp - timeElapsed / 10;
+        filterByTime((filteredStartTimeStamp - firstTimeStamp) / 1000, (filteredEndTimeStamp - firstTimeStamp)/1000);
 
-        long startOffsetInSecond = (startTimeStamp + timeElapsed / 10 - firstTimeStamp) / 1000;
-        long endOffsetInSecond = (endTimeStamp - timeElapsed / 10 - firstTimeStamp) / 1000;
-        filterByTime(startOffsetInSecond, endOffsetInSecond);
     }
 
-
     public void filterByTime(long startOffsetInSecond, long endOffsetInSecond) {
-        long startTimeStamp = Long.parseLong(originData.get(0).get(CSVHeader.TIMESTAMP));
-        long startOffset = startTimeStamp + startOffsetInSecond * 1000;
-        long endOffset = startTimeStamp + endOffsetInSecond * 1000;
-        int l = 0, r = originData.size();
+        long firstTimeStamp = Long.parseLong(csv.getRecords().get(0).get(CSVHeader.TIMESTAMP));
+        this.filteredStartTimeStamp = firstTimeStamp + startOffsetInSecond * 1000;
+        this.filteredEndTimeStamp = firstTimeStamp + endOffsetInSecond * 1000;
+        int l = 0, r = csv.getRecords().size();
         int start, end;
         while (r > l + 1) {
             int mid = l + (r - l) / 2;
-            long curTimeStamp = Long.parseLong(originData.get(mid).get(CSVHeader.TIMESTAMP));
-            if (curTimeStamp < startOffset) {
+            long curTimeStamp = Long.parseLong(csv.getRecords().get(mid).get(CSVHeader.TIMESTAMP));
+            if (curTimeStamp < filteredStartTimeStamp) {
                 l = mid;
             } else {
                 r = mid;
@@ -101,18 +111,18 @@ public class SynthesisReport extends AbstractReport {
         }
         start = r;
         l = 0;
-        r = originData.size();
+        r = csv.getRecords().size();
         while (r > l + 1) {
             int mid = l + (r - l) / 2;
-            long curTimeStamp = Long.parseLong(originData.get(mid).get(CSVHeader.TIMESTAMP));
-            if (curTimeStamp < endOffset) {
+            long curTimeStamp = Long.parseLong(csv.getRecords().get(mid).get(CSVHeader.TIMESTAMP));
+            if (curTimeStamp < filteredEndTimeStamp) {
                 l = mid;
             } else {
                 r = mid;
             }
         }
         end = l;
-        filteredData = originData.subList(start, end);
+        filteredData = csv.getRecords().subList(start, end);
     }
 
     private boolean isSuccess(CSVRecord record) {
@@ -191,7 +201,7 @@ public class SynthesisReport extends AbstractReport {
         return (int) CommonUtils.getSpecifiedPositionVal(recordList, CSVHeader.ELAPSED.toString(), 90);
     }
 
-    public double getStandartDeviation(String label) {
+    public double getStandardDeviation(String label) {
         List<CSVRecord> recordList = getRecordsByLabel(label, true);
         return CommonUtils.getStandardDeviation(recordList, CSVHeader.ELAPSED.toString());
     }
@@ -238,13 +248,14 @@ public class SynthesisReport extends AbstractReport {
         if (report == null) {
             DecimalFormat df = new DecimalFormat("#.##");
             for (String label : labelSet) {
+                System.out.println(label);
                 List<String> curLabelReport = new ArrayList<>();
                 String sample = String.valueOf(getSampleCount(label));
                 String average = df.format(getAvgResponseTime(label) / 1000.0);
                 String min = df.format(getMinResponseTime(label) / 1000.0);
                 String max = df.format(getMaxResponseTime(label) / 1000.0);
                 String line90 = df.format(getResponseTime90PercentLine(label) / 1000.0);
-                String stdDev = df.format(getStandartDeviation(label));
+                String stdDev = df.format(getStandardDeviation(label));
                 String error = df.format(getErrorRate(label));
                 String throughput = df.format(getThroughput(label));
 
