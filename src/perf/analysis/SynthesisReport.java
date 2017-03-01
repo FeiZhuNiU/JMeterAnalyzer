@@ -57,7 +57,6 @@ public class SynthesisReport extends AbstractReport {
             filteredEndTimeStamp = Long.parseLong(csv.getRecords().get(csv.getRecords().size()-1).get(CSVHeader.TIMESTAMP));
             this.filteredData = csv.getRecords();
         }
-//        report = getReport();
     }
 
     /**
